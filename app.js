@@ -1,5 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2/promise');
+const moment = require('moment');
+const formattedDate = moment().format('DD-MM-YYYY');
 
 const app = express();
 
@@ -11,33 +13,33 @@ const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'stockvaksin'
+  database: 'anonchat'
 });
 
 app.get('/', (req, res) => {
   res.send('Welcome to my API connected to MySQL!');
 });
 
-app.get('/api/stok', async (req, res) => {
+app.get('/api/pesan', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM stok');
+    const [rows] = await pool.query('SELECT * FROM message');
     res.json(rows);
   } catch (error) {
     res.status(500).json({ error: 'Error fetching stok' });
   }
 });
 
-app.post('/api/stok', async (req, res) => {
-  const { uidstok, namastok, stok } = req.body;
-  if (uidstok && namastok && stok) {
+app.post('/api/pesan', async (req, res) => {
+  const { tomsg, msg } = req.body;
+  if (tomsg && msg) {
     try {
-      const result = await pool.query('INSERT INTO stok (uid_stok, nama_stok, stok) VALUES (?, ?, ?)', [uidstok, namastok, stok]);
-      res.status(201).json({ message: 'User created', userId: result[0].insertId });
+      const result = await pool.query('INSERT INTO message (to_msg, msg, date_msg) VALUES (?, ?, ?)', [tomsg, msg, formattedDate]);
+      res.status(201).json({ message: 'pesan dibuat', userId: result[0].insertId });
     } catch (error) {
       res.status(500).json({ error: 'Error saving user' });
     }
   } else {
-    res.status(400).json({ error: 'Please provide both name and age.' });
+    res.status(400).json({ error: 'masukkan kepada siapa dikirim dan pesan.' });
   }
 });
 
