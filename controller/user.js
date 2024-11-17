@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { pool } = require('../config/config');
 
-const SECRET_KEY = 'ADLI-XSEC-aiwdnondoendowndoednwodnrifborfboiebrfio';
+require('dotenv').config();
+const SECRET_KEY = process.env.SECRET_KEY;
 
 const register = async (req, res) => {
     const { usermail, username, password } = req.body;
