@@ -16,12 +16,38 @@ const pesan = async (req, res) => {
     }
   }
 
+const pesanId = async (req, res) => {
+    try {
+      const [[rows]] = await pool.query('SELECT * FROM message WHERE id_msg = ?', [req.params.id]);
+      if (!rows) {
+        return res.status(404).json({ error: 'Message not found' });
+      }
+      res.json(rows);
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching message' });
+    }
+  }
+
+const pesanDelete = async (req, res) => {
+    try {
+      if (req.user.usermail !== "adli@gmail.com") {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+      const rows = await pool.query('DELETE FROM message WHERE id_msg = ?', [req.params.id]);
+      if (rows) {
+        res.json({ message: 'Message deleted successfully' });
+      }
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching message' });
+    }
+  }
+
 const createPesan = async (req, res) => {
     const { tomsg, msg } = req.body;
     if (tomsg && msg) {
         try {
             const result = await pool.query('INSERT INTO message (to_msg, msg, date_msg) VALUES (?, ?, ?)', [tomsg, msg, formattedDate]);
-            res.status(201).json({ message: 'pesan dibuat', userId: result[0].insertId });
+            res.status(201).json({ data: { id: result[0].insertId, tomsg, msg, date_msg: formattedDate }, message: 'pesan dibuat', userId: result[0].insertId });
         } catch (error) {
             res.status(500).json({ error: 'Error saving message' });
         }
@@ -34,4 +60,4 @@ const protected = async (req, res) => {
     res.json({ message: 'This is a protected route', user: req.user });
 } 
 
-module.exports = { pesan, createPesan, protected, index };
+module.exports = { pesan, createPesan, protected, index, pesanId, pesanDelete };

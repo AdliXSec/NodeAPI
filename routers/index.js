@@ -1,6 +1,6 @@
 const express = require('express');
 const { register, login, authenticateToken } = require('../controller/user');
-const { index, pesan, createPesan, protected } = require('../controller/pesan');
+const { index, pesan, createPesan, protected, pesanId, pesanDelete } = require('../controller/pesan');
 
 const router = express.Router();
 
@@ -10,7 +10,10 @@ router.post('/user/login', login);
 
 
 router.post('/pesan', createPesan);
-router.get('/pesan', authenticateToken, pesan);
+router.get('/pesan', pesan);
+router.get('/pesan/:id', pesanId);
+router.delete('/pesan/:id', authenticateToken, pesanDelete);
+
 router.get('/test', authenticateToken, protected)
 router.get('/', index);
 

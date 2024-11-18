@@ -13,7 +13,7 @@ app.use(express.json());
 // Set the port
 const PORT = process.env.PORT || 3000;
 
-app.use('/api', router);
+app.use('/', router);
 
 // Start the server
 app.listen(PORT, () => {
