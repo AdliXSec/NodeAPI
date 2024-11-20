@@ -30,7 +30,7 @@ const pesanId = async (req, res) => {
 
 const pesanDelete = async (req, res) => {
     try {
-      if (req.user.usermail !== "adli@gmail.com") {
+      if (req.user.status !== "superadmin") {
         return res.status(403).json({ error: 'Access denied' });
       }
       const rows = await pool.query('DELETE FROM message WHERE id_msg = ?', [req.params.id]);
@@ -56,8 +56,31 @@ const createPesan = async (req, res) => {
     }
 };
 
+const pesanUpdate = async (req, res) => {
+    const { tomsg, msg } = req.body;
+    if (req.user.status !== "superadmin") {
+        return res.status(403).json({ error: 'Access denied' });
+    }
+    if (tomsg && msg) {
+        try {
+            const [[rows]] = await pool.query('SELECT * FROM message WHERE id_msg = ?', [req.params.id]);
+            if (!rows) {
+                return res.status(404).json({ error: 'Message not found' });
+            }
+            const result = await pool.query('UPDATE message SET to_msg = ?, msg = ?, date_msg = ? WHERE id_msg = ?', [tomsg, msg, formattedDate, req.params.id]);
+            if (result) {
+                res.json({ message: 'pesan diupdate', userId: req.params.id });
+            }
+        } catch (error) {
+            res.status(500).json({ error: 'Error updating message' });
+        }
+    } else {
+        res.status(400).json({ error: 'masukkan kepada siapa dikirim dan pesan.' });
+    }
+};
+
 const protected = async (req, res) => {
     res.json({ message: 'This is a protected route', user: req.user });
 } 
 
-module.exports = { pesan, createPesan, protected, index, pesanId, pesanDelete };
+module.exports = { pesan, createPesan, protected, index, pesanId, pesanDelete, pesanUpdate };
