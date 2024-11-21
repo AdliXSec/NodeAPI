@@ -16,6 +16,18 @@ const pesan = async (req, res) => {
     }
   }
 
+const searchPesan = async (req, res) => {
+    try {
+      const [[search]] = await pool.query(`SELECT * FROM message WHERE to_msg LIKE '%${[req.params.tomsg]}%'`);
+      if (!search) {
+        return res.status(404).json({ error: 'Message not found' });
+      }
+      res.json(search);
+    } catch (error) {
+      res.status(500).json({ error: 'Error fetching message' });
+    }
+}
+
 const pesanId = async (req, res) => {
     try {
       const [[rows]] = await pool.query('SELECT * FROM message WHERE id_msg = ?', [req.params.id]);
@@ -83,4 +95,4 @@ const protected = async (req, res) => {
     res.json({ message: 'This is a protected route', user: req.user });
 } 
 
-module.exports = { pesan, createPesan, protected, index, pesanId, pesanDelete, pesanUpdate };
+module.exports = { pesan, createPesan, protected, index, pesanId, pesanDelete, pesanUpdate, searchPesan };
